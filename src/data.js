@@ -1,0 +1,201 @@
+// Central mock data + garment templates (design-only, no backend).
+// Simple state lives in App.jsx via useState — easy to swap for a store later.
+
+export const GARMENT_TYPES = [
+  { id: "blouse", label: "Blouse" },
+  { id: "salwar", label: "Salwar Kameez" },
+  { id: "dress", label: "Dress / Gown" },
+  { id: "shirt", label: "Shirt" },
+  { id: "pants", label: "Pants" },
+  { id: "skirt", label: "Skirt" },
+];
+
+export const ORDER_STATUSES = [
+  "Order received",
+  "In stitching",
+  "In wait",
+  "Completed",
+  "Hand Over",
+];
+
+// Measurement fields per garment (values in inches, decimals allowed).
+// Chosen the way a professional tailor takes them — core fitting points first,
+// then finishing details. Any point can be left blank; a custom point is always
+// available for every garment.
+export const MEASUREMENT_TEMPLATES = {
+  blouse: [
+    "Chest",
+    "Upper Chest",
+    "Waist",
+    "Hip",
+    "Shoulder",
+    "Armhole",
+    "Sleeve Length",
+    "Sleeve Round",
+    "Front Neck Depth",
+    "Back Neck Depth",
+    "Front Length",
+    "Back Length",
+    "Bust Point",
+    "Bust Span",
+  ],
+  salwar: [
+    "Kameez Length",
+    "Chest",
+    "Waist",
+    "Hip",
+    "Shoulder",
+    "Armhole",
+    "Sleeve Length",
+    "Sleeve Round",
+    "Front Neck Depth",
+    "Back Neck Depth",
+    "Salwar Length",
+    "Thigh",
+    "Knee",
+    "Bottom (Ankle)",
+  ],
+  dress: [
+    "Chest",
+    "Waist",
+    "Hip",
+    "Shoulder",
+    "Armhole",
+    "Sleeve Length",
+    "Full Length",
+    "Waist to Hem",
+    "Front Neck Depth",
+    "Back Neck Depth",
+    "Bust Point",
+    "Bust Span",
+    "Bottom Flare",
+  ],
+  shirt: [
+    "Chest",
+    "Waist",
+    "Shoulder",
+    "Armhole",
+    "Sleeve Length",
+    "Sleeve Round",
+    "Collar",
+    "Cuff",
+    "Shirt Length",
+    "Back Length",
+    "Yoke",
+  ],
+  pants: [
+    "Waist",
+    "Hip",
+    "Length (Outseam)",
+    "Inseam",
+    "Thigh",
+    "Knee",
+    "Bottom (Ankle)",
+    "Crotch / Rise",
+    "Seat",
+  ],
+  skirt: [
+    "Waist",
+    "Hip",
+    "Waist to Hip",
+    "Length",
+    "Bottom (Hem)",
+    "Slit Length",
+  ],
+};
+
+export const initialCustomers = [
+  {
+    id: "c1",
+    name: "Meena Krishnan",
+    mobile: "98410 22334",
+    address: "12, Muthu Street, Madurai",
+    notes: "Prefers loose fit. Cotton only.",
+    orders: [
+      {
+        id: "o1",
+        garment: "blouse",
+        garmentLabel: "Blouse — Cotton, Maroon",
+        deliveryDate: "2026-09-12",
+        status: "In stitching",
+        measurements: { Chest: "36", Waist: "30", Shoulder: "14", "Sleeve Length": "10", Armhole: "16", "Front Length": "15", "Neck Depth": "7" },
+      },
+      {
+        id: "o2",
+        garment: "salwar",
+        garmentLabel: "Salwar Kameez — Green",
+        deliveryDate: "2026-09-18",
+        status: "Order received",
+        measurements: { "Top Length": "42", Chest: "36", Waist: "31", Hips: "38", "Sleeve Length": "20", "Salwar Length": "38", "Bottom (Ankle)": "12" },
+      },
+    ],
+  },
+  {
+    id: "c2",
+    name: "Divya Suresh",
+    mobile: "97909 55661",
+    address: "45, Anna Nagar, Chennai",
+    notes: "",
+    orders: [
+      {
+        id: "o3",
+        garment: "dress",
+        garmentLabel: "Dress / Gown — Birthday frock",
+        deliveryDate: "2026-09-10",
+        status: "Completed",
+        measurements: { Chest: "34", Waist: "28", Hips: "36", "Full Length": "48", Shoulder: "13.5", "Sleeve Length": "8" },
+      },
+    ],
+  },
+  {
+    id: "c3",
+    name: "Fatima Begum",
+    mobile: "98422 78120",
+    address: "8, Pallivasal Road, Trichy",
+    notes: "Urgent delivery requested.",
+    orders: [
+      {
+        id: "o4",
+        garment: "pants",
+        garmentLabel: "Pants — Linen, Beige",
+        deliveryDate: "2026-09-14",
+        status: "In stitching",
+        measurements: { Waist: "32", Hips: "38", Length: "40", Thigh: "22", Knee: "16", "Bottom (Ankle)": "14" },
+      },
+    ],
+  },
+  {
+    id: "c4",
+    name: "Lakshmi Rao",
+    mobile: "98841 30987",
+    address: "3, Temple Street, Kanchipuram",
+    notes: "",
+    orders: [
+      {
+        id: "o5",
+        garment: "blouse",
+        garmentLabel: "Blouse — Silk, Red + Gold",
+        deliveryDate: "2026-09-20",
+        status: "Order received",
+        measurements: { Chest: "38", Waist: "32", Shoulder: "14.5", "Sleeve Length": "11", Armhole: "17", "Front Length": "15.5", "Neck Depth": "6.5" },
+      },
+    ],
+  },
+  {
+    id: "c5",
+    name: "Anitha Paul",
+    mobile: "96290 11458",
+    address: "27, Church Road, Coimbatore",
+    notes: "Allergic to synthetic lining.",
+    orders: [
+      {
+        id: "o6",
+        garment: "shirt",
+        garmentLabel: "Shirt — Office wear, White",
+        deliveryDate: "2026-09-11",
+        status: "Completed",
+        measurements: { Chest: "37", Waist: "33", Shoulder: "17", "Sleeve Length": "24", Collar: "15", "Shirt Length": "28" },
+      },
+    ],
+  },
+];
