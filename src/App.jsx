@@ -7,9 +7,6 @@ import {
 import {
   DEFAULT_SETTINGS,
   bootstrap,
-  buildBackup,
-  parseBackup,
-  replaceCustomers,
   saveState,
   subscribeSync,
 } from "./storage.js";
@@ -177,38 +174,6 @@ export default function App() {
   }, [customers, highContrast, largeText, unit, palette, fontPair, hydrated, showToast]);
 
   const showDialog = (title, message) => setDialog({ title, message });
-
-  const exportBackup = () => {
-    const json = buildBackup(customers, { highContrast, largeText, unit, palette, fontPair });
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `priyaa-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast("Backup downloaded");
-  };
-
-  const importBackup = async (file) => {
-    try {
-      const data = parseBackup(await file.text());
-      setCustomers(data.customers);
-      replaceCustomers(data.customers);
-      if (data.settings && typeof data.settings === "object") {
-        const s = { ...DEFAULT_SETTINGS, ...data.settings };
-        setHighContrast(!!s.highContrast);
-        setLargeText(!!s.largeText);
-        setUnit(s.unit);
-        setPalette(s.palette);
-        setFontPair(s.fontPair);
-      }
-      showToast(`Restored ${data.customers.length} customer${data.customers.length === 1 ? "" : "s"}`);
-      go("home");
-    } catch {
-      showToast("Could not read that backup file");
-    }
-  };
 
   const go = (name, extra = {}) => {
     setRoute({ name, ...extra });
@@ -381,19 +346,13 @@ export default function App() {
             setHighContrast={setHighContrast}
             largeText={largeText}
             setLargeText={setLargeText}
-            unit={unit}
-            setUnit={setUnit}
             palette={palette}
             setPalette={setPalette}
             fontPair={fontPair}
             setFontPair={setFontPair}
-            onExport={exportBackup}
-            onImport={importBackup}
             onSaved={showToast}
           />
         )}
-
-        {route.name === "help" && <HelpScreen onBack={() => go("home")} onGo={go} />}
           </>
         )}
       </main>
@@ -424,9 +383,8 @@ export default function App() {
 function Drawer({ open, route, onClose, onGo }) {
   const items = [
     { name: "home", label: "Home", glyph: "⌂", desc: "Recent customers" },
-    { name: "addCustomer", label: "Add Customer", glyph: "＋", desc: "New person" },
-    { name: "settings", label: "Settings", glyph: "⚙", desc: "Colours, fonts, units" },
-    { name: "help", label: "Help", glyph: "?", desc: "How to use" },
+    { name: "addCustomer", label: "Add Customer", glyph: "＋", desc: "New client" },
+    { name: "settings", label: "Settings", glyph: "⚙", desc: "Colours and fonts" },
   ];
   return (
     <>
@@ -456,7 +414,7 @@ function Drawer({ open, route, onClose, onGo }) {
             </button>
           ))}
         </nav>
-        <div className="drawer-foot">Made for home tailors · Works on phone &amp; tablet · v1.0 design</div>
+        <div className="drawer-foot">Measurements, orders &amp; due dates in one place.</div>
       </aside>
     </>
   );
@@ -515,7 +473,7 @@ function HomeScreen({ customers, title, subtitle, search, setSearch, onOpen, onA
           })}
         </div>
       )}
-      <p className="subtitle" style={{ marginTop: 16 }}>All sizes shown in {unit === "inch" ? "inches" : "cm"}. Change in Settings.</p>
+      <p className="subtitle" style={{ marginTop: 16 }}>All sizes shown in {unit === "inch" ? "inches" : "cm"}.</p>
     </>
   );
 }
@@ -1140,7 +1098,7 @@ function AddMeasurementScreen({ customer, unit, onBack, onSave }) {
 
 /* ---------------- Settings ---------------- */
 
-function SettingsScreen({ onBack, highContrast, setHighContrast, largeText, setLargeText, unit, setUnit, palette, setPalette, fontPair, setFontPair, onExport, onImport, onSaved }) {
+function SettingsScreen({ onBack, highContrast, setHighContrast, largeText, setLargeText, palette, setPalette, fontPair, setFontPair, onSaved }) {
   return (
     <>
       <button className="back-btn" onClick={onBack} aria-label="Back to home">← Back</button>
@@ -1205,62 +1163,7 @@ function SettingsScreen({ onBack, highContrast, setHighContrast, largeText, setL
           <span>Large text<br /><small style={{ color: "var(--muted)", fontWeight: 400 }}>Bigger letters everywhere</small></span>
           <button className="switch" role="switch" aria-checked={largeText} aria-label="Large text" onClick={() => { setLargeText(!largeText); onSaved(!largeText ? "Large text on" : "Large text off"); }} />
         </div>
-        <div className="field" style={{ marginTop: 18 }}>
-          <label htmlFor="unit">Measuring unit</label>
-          <select id="unit" className="text-input" value={unit} onChange={(e) => { setUnit(e.target.value); onSaved(`Unit set to ${e.target.value}`); }}>
-            <option value="inch">Inches (in)</option>
-            <option value="cm">Centimetres (cm)</option>
-          </select>
-          <p className="hint">Voice-over &amp; screen-reader labels are built in. All buttons are at least 56px tall for easy tapping.</p>
-        </div>
-      </div>
-
-      <div className="card">
-        <h2 className="section-title" style={{ marginTop: 0 }}>Backup &amp; Restore</h2>
-        <p style={{ fontSize: 17, color: "var(--muted)", marginTop: 0 }}>
-          Customer records are saved on this device automatically. Download a backup file regularly,
-          and use it to move records to a new phone or tablet.
-        </p>
-        <div className="btn-row">
-          <button className="btn btn-primary" onClick={onExport}>Download Backup</button>
-          <label className="btn btn-secondary" style={{ cursor: "pointer", margin: 0 }}>
-            Restore Backup
-            <input
-              type="file"
-              accept="application/json,.json"
-              onChange={(e) => {
-                const file = e.target.files && e.target.files[0];
-                if (file) onImport(file);
-                e.target.value = "";
-              }}
-              style={{ display: "none" }}
-            />
-          </label>
-        </div>
-        <p className="hint">Restoring a backup replaces the records currently on this device.</p>
-      </div>
-    </>
-  );
-}
-
-/* ---------------- Help ---------------- */
-
-function HelpScreen({ onBack, onGo }) {
-  return (
-    <>
-      <button className="back-btn" onClick={onBack} aria-label="Back to home">← Back</button>
-      <h1>Help</h1>
-      <p className="subtitle">Three easy steps — no tech skills needed.</p>
-      <div className="card">
-        <div className="help-step"><span className="step-num">1</span><span><strong>Find your customer</strong> on Home. Use search if the list is long. Tap the card to open.</span></div>
-        <div className="help-step"><span className="step-num">2</span><span><strong>Tap a garment</strong> to see its measurements. Tap again to close. Use “Edit Details” to fix phone or address.</span></div>
-        <div className="help-step"><span className="step-num">3</span><span><strong>Tap “Add Measurement”</strong>, pick Blouse / Salwar / Shirt…, type numbers (decimals OK), pick a delivery date, Save.</span></div>
-      </div>
-      <div className="card">
-        <h2 className="section-title" style={{ marginTop: 0 }}>Tips</h2>
-        <p style={{ fontSize: 17 }}>• All buttons are big — tap firmly once and wait for the message at the bottom.<br />• Swipe from the left edge or tap ☰ (top-left) to open the menu.<br />• If text looks small, turn on Large text in Settings.</p>
-        <br />
-        <button className="btn btn-primary" onClick={() => onGo("addCustomer")}>＋ Try: Add a Customer</button>
+        <p className="hint" style={{ marginTop: 18 }}>Voice-over &amp; screen-reader labels are built in. All buttons are at least 56px tall for easy tapping.</p>
       </div>
     </>
   );

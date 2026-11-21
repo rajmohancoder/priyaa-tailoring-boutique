@@ -714,7 +714,7 @@ select.text-input {
 .dialog-title { font-size: 21px; margin: 0 0 10px; }
 .dialog p { margin: 0 0 16px; }
 
-/* ---------- Settings / Help ---------- */
+/* ---------- Settings ---------- */
 .switch-row {
   display: flex;
   align-items: center;
@@ -747,26 +747,6 @@ select.text-input {
 }
 .switch[aria-checked="true"] { background: var(--success); border-color: var(--success); }
 .switch[aria-checked="true"]::after { left: 30px; }
-.help-step {
-  display: flex;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 17px;
-}
-.help-step:last-child { border: 0; }
-.step-num {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 20px;
-}
 .error { color: #a33b2e; font-size: 16px; font-weight: 700; margin-top: 6px; }
 
 /* ---------- Small screens ---------- */
