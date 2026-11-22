@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import priyaaLogo from "./assets/priyaa-two.png";
 import {
   GARMENT_TYPES,
   MEASUREMENT_TEMPLATES,
@@ -57,9 +58,9 @@ export const FONT_PAIRINGS = [
   {
     id: "friendly",
     name: "Rounded Friendly",
-    detail: "Nunito headings + Inter body — easiest for beginners",
+    detail: "Nunito for headings and body — the app default",
     head: '"Nunito", sans-serif',
-    body: '"Inter", sans-serif',
+    body: '"Nunito", sans-serif',
   },
   {
     id: "classic",
@@ -170,7 +171,7 @@ const hasIncompleteCustoms = (customs) =>
     return !isValidCustomName(name.trim()) || !text || Number(text) === 0;
   });
 const isValidName = (value) =>
-  value.trim().length > 0 && value.trim().length <= 10;
+  value.trim().length > 0 && value.trim().length <= 50;
 
 function CustomMeasurements({ customs, unit, onChange, onAdd, onRemove }) {
   return (
@@ -252,82 +253,15 @@ function byDueDate(a, b) {
   return ad.localeCompare(bd);
 }
 
-/* Small flat logo: sewing needle + trailing thread above a coiled
-   measuring tape. Badge uses --primary so it follows the palette. */
 function LogoMark({ size = 46, inverse = false, labelled = true }) {
-  const badge = inverse ? "#FFF8F0" : "var(--primary)";
-  const glyph = inverse ? "var(--primary)" : "#FFF8F0";
   return (
-    <svg
-      className="brand-logo"
-      width={size}
-      height={size}
-      viewBox="0 0 48 48"
-      focusable="false"
-      role={labelled ? "img" : undefined}
-      aria-label={
-        labelled ? "Priyaa logo — needle and measuring tape" : undefined
-      }
+    <img
+      className={`brand-logo priyaa-logo ${inverse ? "inverse" : ""}`}
+      src={priyaaLogo}
+      style={{ height: size }}
+      alt={labelled ? "Priyaa Dresses logo" : ""}
       aria-hidden={labelled ? undefined : true}
-    >
-      <rect
-        x="2"
-        y="2"
-        width="44"
-        height="44"
-        rx="13"
-        style={{ fill: badge }}
-      />
-      {/* needle */}
-      <line
-        x1="14"
-        y1="11"
-        x2="33"
-        y2="14"
-        stroke={glyph}
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
-      <circle
-        cx="12"
-        cy="10.7"
-        r="2.1"
-        fill="none"
-        stroke={glyph}
-        strokeWidth="1.8"
-      />
-      {/* trailing thread */}
-      <path
-        d="M10.4 12.2 Q6 18 8.5 23 Q10 26.5 13.5 26"
-        fill="none"
-        stroke={glyph}
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-      {/* coiled measuring tape */}
-      <circle
-        cx="21"
-        cy="30"
-        r="7"
-        fill="none"
-        stroke={glyph}
-        strokeWidth="3.4"
-      />
-      <circle cx="21" cy="30" r="1.8" style={{ fill: glyph }} />
-      {/* tape strip with tick marks */}
-      <path
-        d="M28 27 H38"
-        stroke={glyph}
-        strokeWidth="3.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M31.5 25.4v3.2M34 25.4v3.2M36.5 25.4v3.2"
-        style={{ stroke: badge }}
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-    </svg>
+    />
   );
 }
 
@@ -366,8 +300,6 @@ export default function App() {
       setHighContrast(data.settings.highContrast);
       setLargeText(data.settings.largeText);
       setUnit(data.settings.unit);
-      setPalette(data.settings.palette);
-      setFontPair(data.settings.fontPair);
       setHydrated(true);
     });
     return () => {
@@ -621,7 +553,9 @@ export default function App() {
                 }
                 search={search}
                 setSearch={setSearch}
-                onOpen={(id) => go("customer", { customerId: id })}
+                onOpen={(id, target) =>
+                  go("customer", { customerId: id, target })
+                }
                 unit={unit}
               />
             )}
@@ -630,6 +564,7 @@ export default function App() {
               <CustomerDetailScreen
                 customer={activeCustomer}
                 unit={unit}
+                focusOrders={route.target === "orders"}
                 onBack={() => go("home")}
                 onEdit={(fields) => updateCustomer(activeCustomer.id, fields)}
                 onUpdateOrder={(orderId, fields, options) =>
@@ -735,7 +670,6 @@ function Drawer({ open, route, onClose, onGo }) {
         aria-hidden={!open}
       >
         <div className="drawer-head">
-          <LogoMark size={42} inverse labelled={false} />
           <div>
             <strong>Priyaa</strong>
             <span>Measurement Book</span>
@@ -809,10 +743,18 @@ function HomeScreen({
           {customers.map((c) => {
             const upcoming = upcomingOrder(c);
             return (
-              <button
+              <div
                 key={c.id}
                 className="customer-card"
+                role="button"
+                tabIndex={0}
                 onClick={() => onOpen(c.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onOpen(c.id);
+                  }
+                }}
                 aria-label={`Open ${c.name}`}
               >
                 <p className="name">{c.name}</p>
@@ -829,16 +771,30 @@ function HomeScreen({
                 </p>
                 <div className="meta-row pill-row">
                   {upcoming && (
-                    <span className={`pill ${statusClass(upcoming.status)}`}>
+                    <button
+                      type="button"
+                      className={`pill ${statusClass(upcoming.status)}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpen(c.id, "orders");
+                      }}
+                    >
                       Due {formatDate(upcoming.deliveryDate)} ·{" "}
                       {upcoming.status}
-                    </span>
+                    </button>
                   )}
-                  <span className="pill">
+                  <button
+                    type="button"
+                    className="pill"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpen(c.id, "orders");
+                    }}
+                  >
                     {c.orders.length} order{c.orders.length === 1 ? "" : "s"}
-                  </span>
+                  </button>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -855,11 +811,13 @@ function HomeScreen({
 function CustomerDetailScreen({
   customer,
   unit,
+  focusOrders = false,
   onBack,
   onEdit,
   onUpdateOrder,
   onAddMeasurement,
 }) {
+  const ordersRef = useRef(null);
   const [editing, setEditing] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [imageViewer, setImageViewer] = useState(null);
@@ -872,11 +830,17 @@ function CustomerDetailScreen({
   });
   const [editTouched, setEditTouched] = useState(false);
 
+  useEffect(() => {
+    if (focusOrders && ordersRef.current) {
+      ordersRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [focusOrders, customer.id]);
+
   const nameErr =
     editTouched && !form.name.trim()
       ? "Please enter the customer name."
       : editTouched && form.name.trim().length > 10
-        ? "Name must be 10 characters or fewer."
+        ? "Name must be 50 characters or fewer."
         : "";
   const mobileErr =
     editTouched && !form.mobile.trim()
@@ -940,16 +904,16 @@ function CustomerDetailScreen({
               <label htmlFor="edit-name">
                 Name *{" "}
                 <span style={{ color: "var(--muted)", fontWeight: 400 }}>
-                  (max 10 characters)
+                  (max 50 characters)
                 </span>
               </label>
               <input
                 id="edit-name"
                 className="text-input"
-                maxLength={10}
+                maxLength={50}
                 value={form.name}
                 onChange={(e) =>
-                  setForm({ ...form, name: e.target.value.slice(0, 10) })
+                  setForm({ ...form, name: e.target.value.slice(0, 50) })
                 }
               />
               {nameErr && (
@@ -1017,7 +981,7 @@ function CustomerDetailScreen({
         )}
       </section>
 
-      <h2 className="section-title">
+      <h2 className="section-title" ref={ordersRef}>
         Garment Orders ({customer.orders.length})
       </h2>
       {customer.orders.length === 0 && (
@@ -1683,7 +1647,7 @@ function AddCustomerScreen({ onBack, onSave }) {
     touched && !form.name.trim()
       ? "Please enter the customer name."
       : touched && form.name.trim().length > 10
-        ? "Name must be 10 characters or fewer."
+        ? "Name must be 50 characters or fewer."
         : "";
   const mobileErr =
     touched && !form.mobile.trim()
@@ -1709,24 +1673,24 @@ function AddCustomerScreen({ onBack, onSave }) {
       </button>
       <h1>Add New Customer</h1>
       <p className="subtitle">
-        Name up to 10 characters and a 10-digit mobile are required.
+        Name up to 50 characters and a 10-digit mobile are required.
       </p>
       <div className="card">
         <div className="field">
           <label htmlFor="nc-name">
             Full name *{" "}
             <span style={{ color: "var(--muted)", fontWeight: 400 }}>
-              (max 10 characters)
+              (max 50 characters)
             </span>
           </label>
           <input
             id="nc-name"
             className="text-input"
             placeholder="e.g. Priyaa"
-            maxLength={10}
+            maxLength={50}
             value={form.name}
             onChange={(e) =>
-              setForm({ ...form, name: e.target.value.slice(0, 10) })
+              setForm({ ...form, name: e.target.value.slice(0, 50) })
             }
             autoComplete="name"
           />

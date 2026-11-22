@@ -18,7 +18,7 @@
   --radius: 16px;
   --touch: 56px;
   --font-head: "Nunito", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
   --font: var(--font-body);
 }
 
@@ -162,7 +162,7 @@ body {
   flex-direction: column;
 }
 
-button, a, input, select, textarea { touch-action: manipulation; }
+button, a, input, select, textarea { touch-action: manipulation; font-family: var(--font); }
 
 /* Large-text accessibility mode */
 .large-text { font-size: 21px; }
@@ -222,6 +222,8 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .brand strong { font-size: 20px; letter-spacing: 0.2px; }
 .brand span { font-size: 14px; color: var(--muted); }
 .brand-logo { flex-shrink: 0; display: block; }
+.priyaa-logo { width: auto; max-width: 120px; object-fit: contain; }
+.priyaa-logo.inverse { filter: brightness(1.08); }
 .header-spacer { flex: 1; }
 .header-count {
   background: var(--peach);
@@ -364,6 +366,7 @@ button, a, input, select, textarea { touch-action: manipulation; }
   min-height: 120px;
 }
 .customer-card:active { transform: scale(0.98); background: var(--peach); }
+.customer-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .customer-card .name { font-size: 21px; font-weight: 800; margin: 0 0 6px; }
 .customer-card .row {
   display: flex;
@@ -386,6 +389,7 @@ button, a, input, select, textarea { touch-action: manipulation; }
   padding: 8px 14px;
   font-size: 15px;
   font-weight: 700;
+  cursor: pointer;
   border: 2px solid var(--border);
   background: var(--peach);
 }
@@ -424,7 +428,7 @@ button, a, input, select, textarea { touch-action: manipulation; }
 .profile h2 { margin: 0 0 4px; font-size: 24px; }
 .profile .phone { font-size: 19px; font-weight: 700; color: var(--primary); margin: 4px 0; }
 .profile p { margin: 6px 0; color: var(--muted); font-size: 17px; }
-.section-title { font-size: 20px; margin: 22px 0 10px; font-weight: 800; }
+.section-title { font-size: 20px; margin: 22px 0 10px; font-weight: 800; scroll-margin-top: 88px; }
 .garment-card {
   background: var(--card);
   border: 2px solid var(--border);

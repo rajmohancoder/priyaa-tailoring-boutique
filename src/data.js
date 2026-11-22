@@ -6,7 +6,7 @@ export const GARMENT_TYPES = [
   { id: "salwar", label: "Salwar Kameez" },
   { id: "dress", label: "Dress / Gown" },
   { id: "shirt", label: "Shirt" },
-  { id: "pants", label: "Pants" },
+  { id: "pants", label: "Gents Pant" },
   { id: "skirt", label: "Skirt" },
 ];
 
@@ -157,7 +157,7 @@ export const initialCustomers = [
       {
         id: "o4",
         garment: "pants",
-        garmentLabel: "Pants — Linen, Beige",
+        garmentLabel: "Gents Pant — Linen, Beige",
         deliveryDate: "2026-09-14",
         status: "In stitching",
         measurements: { Waist: "32", Hips: "38", Length: "40", Thigh: "22", Knee: "16", "Bottom (Ankle)": "14" },

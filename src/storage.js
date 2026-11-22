@@ -110,6 +110,13 @@ function orderRows(customers, includeCreatedAt = false) {
   );
 }
 
+function garmentLabelFor(order) {
+  const label = order.garment_label || order.garment;
+  return order.garment === "pants"
+    ? String(label).replace(/^pants\b/i, "Gents Pant")
+    : label;
+}
+
 function fromRows(rows) {
   return rows.map((row) => ({
     id: row.id,
@@ -123,7 +130,7 @@ function fromRows(rows) {
       .map((order) => ({
         id: order.id,
         garment: order.garment,
-        garmentLabel: order.garment_label || order.garment,
+        garmentLabel: garmentLabelFor(order),
         deliveryDate: order.delivery_date || "",
         status: order.status === "New" ? "Order received" : order.status,
         measurements: order.measurements || {},
