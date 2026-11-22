@@ -1272,6 +1272,70 @@ function ImageViewer({ images, initialIndex = 0, title = "Reference images", onC
   );
 }
 
+function StatusSelect({ id, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    const closeEscape = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeEscape);
+    };
+  }, [open]);
+
+  return (
+    <div className="status-select" ref={ref}>
+      <button
+        type="button"
+        id={id}
+        className="text-input status-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={`${id}-options`}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span>{value}</span>
+        <span className="chev" aria-hidden="true">
+          {open ? "▴" : "▾"}
+        </span>
+      </button>
+      {open && (
+        <div
+          className="status-options"
+          id={`${id}-options`}
+          role="listbox"
+          aria-label="Status"
+        >
+          {options.map((s) => (
+            <button
+              type="button"
+              key={s}
+              role="option"
+              aria-selected={s === value}
+              className={`status-option ${s === value ? "selected" : ""}`}
+              onClick={() => {
+                onChange(s);
+                setOpen(false);
+              }}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function OrderEditForm({ order, unit, onCancel, onSave }) {
   const templateFields = MEASUREMENT_TEMPLATES[order.garment] || [];
   const initialImages = order.referenceImages || [];
@@ -1426,18 +1490,12 @@ function OrderEditForm({ order, unit, onCancel, onSave }) {
 
             <div className="field">
               <label htmlFor={`oe-status-${order.id}`}>Status</label>
-              <select
+              <StatusSelect
                 id={`oe-status-${order.id}`}
-                className="text-input"
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                {statusOptions.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
+                options={statusOptions}
+                onChange={setStatus}
+              />
               {balance > 0 && (
                 <p className="hint">
                   Balance {formatMoney(balance)} pending — clear it before
