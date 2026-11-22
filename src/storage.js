@@ -41,6 +41,34 @@ async function request(path, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+export async function fileToDataUrl(file) {
+  if (!file.type.startsWith("image/")) throw new Error("Only image files are allowed");
+  const original = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read image"));
+    reader.readAsDataURL(file);
+  });
+
+  try {
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Could not process image"));
+      img.src = original;
+    });
+    const maxSide = 1200;
+    const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL(file.type === "image/png" ? "image/png" : "image/jpeg", 0.82);
+  } catch {
+    return original;
+  }
+}
+
 const stamp = () => new Date().toISOString();
 
 function customerRow(customer) {
@@ -65,6 +93,7 @@ function orderRow(customerId, order, index, includeCreatedAt = false) {
     measurements: order.measurements || {},
     total_amount: order.totalAmount ?? null,
     advance_paid: order.advancePaid ?? null,
+    reference_images: Array.isArray(order.referenceImages) ? order.referenceImages : [],
     updated_at: stamp(),
   };
   if (includeCreatedAt) {
@@ -100,6 +129,7 @@ function fromRows(rows) {
         measurements: order.measurements || {},
         ...(order.total_amount != null ? { totalAmount: Number(order.total_amount) } : {}),
         ...(order.advance_paid != null ? { advancePaid: Number(order.advance_paid) } : {}),
+        referenceImages: Array.isArray(order.reference_images) ? order.reference_images : [],
       })),
   }));
 }

@@ -24,6 +24,8 @@ create table if not exists public.orders (
 
 create index if not exists orders_customer_id_idx on public.orders (customer_id);
 
+alter table public.orders add column if not exists reference_images jsonb not null default '[]'::jsonb;
+
 create table if not exists public.settings (
   id text primary key default 'app',
   data jsonb not null default '{}'::jsonb,
